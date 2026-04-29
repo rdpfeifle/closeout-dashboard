@@ -17,6 +17,8 @@ import { projectSlug } from "@/lib/project-slug";
 import { Button } from "@/components/ui/button";
 import { useBootstrapDb } from "@/hooks/use-bootstrap-db";
 import { NewPunchItemDialog } from "@/components/NewPunchItemDialog";
+import { BreakdownStrip } from "@/components/BreakdownStrip";
+import type { Priority } from "@/lib/types";
 
 const ProjectDetailView = () => {
   useBootstrapDb();
@@ -74,6 +76,30 @@ const ProjectDetailView = () => {
 
   const counts = useMemo(() => countByStatus(allItems), [allItems]);
   const pct = completionPct(allItems);
+  const byLocation = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of allItems) {
+      map.set(item.location, (map.get(item.location) ?? 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  }, [allItems]);
+  const byAssignee = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of allItems) {
+      const label = getAssignee(item.assigneeId)?.name ?? "Unassigned";
+      map.set(label, (map.get(label) ?? 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  }, [allItems]);
+  const byPriority = useMemo(() => {
+    const base: Record<Priority, number> = { low: 0, med: 0, high: 0, crit: 0 };
+    for (const item of allItems) base[item.priority] += 1;
+    return base;
+  }, [allItems]);
   const activeFilterChips = useMemo(() => {
     const chips: { key: string; label: string; clear: () => void }[] = [];
     if (filters.q.trim()) {
@@ -209,6 +235,7 @@ const ProjectDetailView = () => {
       </header>
 
       <StatsStrip counts={counts} items={allItems} />
+      <BreakdownStrip byLocation={byLocation} byPriority={byPriority} byAssignee={byAssignee} />
       <div className="mx-auto max-w-7xl">
         <FilterBar filters={filters} setFilters={setFilters} locations={locations} />
         <div className="bg-background">

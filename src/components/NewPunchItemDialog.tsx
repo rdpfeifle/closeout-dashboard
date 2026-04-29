@@ -246,7 +246,7 @@ export function NewPunchItemDialog({ projectId }: { projectId: string }) {
               type="button"
               variant="outline"
               size="sm"
-              className="h-9 rounded-sm"
+              className="h-9 rounded-sm hover:border-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={() => setOpen(false)}
             >
               Cancel

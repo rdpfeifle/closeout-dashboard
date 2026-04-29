@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, RotateCcw, Send, Undo2, UserPlus, X, type LucideIcon } from "lucide-react";
+import { CheckCircle2, RotateCcw, Send, Undo2, UserPlus, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -90,9 +90,6 @@ export function ItemDrawer({ item, onClose }: Props) {
         <SheetHeader className="border-b border-border px-5 py-4 space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-mono text-base font-semibold tabular">{item.code}</span>
-            <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-              <X className="h-4 w-4" />
-            </button>
           </div>
           <SheetTitle className="text-left text-base font-medium leading-snug">
             {item.description}

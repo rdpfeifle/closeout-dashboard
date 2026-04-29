@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ASSIGNEES, useCloseout } from "@/lib/store";
 import type { Priority } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
   { value: "low", label: "Low" },
@@ -24,6 +25,7 @@ const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
   { value: "high", label: "High" },
   { value: "crit", label: "Critical" },
 ];
+const MAX_IMAGE_SIZE_MB = 8;
 
 export function NewPunchItemDialog({ projectId }: { projectId: string }) {
   const addItem = useCloseout((s) => s.addItem);
@@ -34,6 +36,8 @@ export function NewPunchItemDialog({ projectId }: { projectId: string }) {
   const [trade, setTrade] = useState("General");
   const [assigneeId, setAssigneeId] = useState<string>("unassigned");
   const [photo, setPhoto] = useState("");
+  const [photoName, setPhotoName] = useState("");
+  const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const canSubmit = location.trim().length > 0 && description.trim().length > 0 && !saving;
@@ -45,7 +49,40 @@ export function NewPunchItemDialog({ projectId }: { projectId: string }) {
     setTrade("General");
     setAssigneeId("unassigned");
     setPhoto("");
+    setPhotoName("");
     setSaving(false);
+  };
+
+  const applyPhotoFile = async (file?: File) => {
+    if (!file) {
+      setPhoto("");
+      setPhotoName("");
+      return true;
+    }
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return false;
+    }
+    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+      toast.error(`Image must be under ${MAX_IMAGE_SIZE_MB}MB.`);
+      return false;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setPhoto(dataUrl);
+      setPhotoName(file.name);
+      return true;
+    } catch {
+      toast.error("Unable to read the selected image.");
+      return false;
+    }
+  };
+
+  const onPhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const ok = await applyPhotoFile(e.target.files?.[0]);
+    if (!ok) {
+      e.target.value = "";
+    }
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -144,24 +181,65 @@ export function NewPunchItemDialog({ projectId }: { projectId: string }) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Trade">
-              <Input
-                value={trade}
-                onChange={(e) => setTrade(e.target.value)}
-                placeholder="General"
-                className="h-9 rounded-sm"
-              />
-            </Field>
-            <Field label="Photo URL">
-              <Input
-                value={photo}
-                onChange={(e) => setPhoto(e.target.value)}
-                placeholder="https://..."
-                className="h-9 rounded-sm"
-              />
-            </Field>
-          </div>
+          <Field label="Trade">
+            <Input
+              value={trade}
+              onChange={(e) => setTrade(e.target.value)}
+              placeholder="General"
+              className="h-9 rounded-sm"
+            />
+          </Field>
+          <Field label="Photo">
+            <label
+              htmlFor="new-punch-item-photo"
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDraggingPhoto(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDraggingPhoto(false);
+              }}
+              onDrop={async (e) => {
+                e.preventDefault();
+                setIsDraggingPhoto(false);
+                await applyPhotoFile(e.dataTransfer.files?.[0]);
+              }}
+              className={cn(
+                "flex min-h-[84px] cursor-pointer items-center justify-center rounded-sm border border-dashed px-3 py-2 text-center text-xs text-muted-foreground transition-colors",
+                isDraggingPhoto
+                  ? "border-accent bg-accent/10 text-foreground"
+                  : "border-border hover:border-foreground/40",
+              )}
+            >
+              <div>
+                <div className="font-medium text-foreground">Drag & drop image here</div>
+                <div className="mt-0.5">or click to browse (PNG, JPG, WEBP, GIF)</div>
+              </div>
+            </label>
+            <Input
+              id="new-punch-item-photo"
+              type="file"
+              accept="image/*"
+              onChange={onPhotoChange}
+              className="sr-only"
+            />
+            {photoName ? (
+              <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                Selected: <span className="font-mono">{photoName}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPhoto("");
+                    setPhotoName("");
+                  }}
+                  className="text-xs text-accent underline-offset-2 hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : null}
+          </Field>
 
           <DialogFooter className="gap-2">
             <Button
@@ -186,6 +264,15 @@ export function NewPunchItemDialog({ projectId }: { projectId: string }) {
       </DialogContent>
     </Dialog>
   );
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
 function Field({

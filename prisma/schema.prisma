@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id        String      @id @default(uuid())
+  name      String
+  address   String
+  gc        String      @default("—")
+  status    String      @default("active")
+  createdAt DateTime    @default(now())
+  items     PunchItem[]
+}
+
+model PunchItem {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  project     Project  @relation(fields: [projectId], references: [id])
+  projectId   String
+  location    String // "Unit 204 - Kitchen"
+  trade       String   @default("General")
+  description String // "Drywall patch needed behind door"
+  status      String   @default("open") // "open", "in_progress", "complete"
+  priority    String   @default("normal")
+  assignedTo  String?
+  photo       String?
+  dueAt       DateTime?
+  activity    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([projectId])
+}

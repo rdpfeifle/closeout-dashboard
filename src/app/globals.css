@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Closeout design system. Warm off-white paper, charcoal ink, safety amber.
+   All colors are HSL. */
+
+@layer base {
+  :root {
+    --background: 40 33% 96%;
+    --foreground: 160 8% 13%;
+    --card: 40 30% 98%;
+    --card-foreground: 160 8% 13%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 160 8% 13%;
+    --primary: 160 8% 13%;
+    --primary-foreground: 40 33% 96%;
+    --secondary: 40 20% 92%;
+    --secondary-foreground: 160 8% 13%;
+    --muted: 40 18% 90%;
+    --muted-foreground: 160 6% 38%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 160 12% 10%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 40 33% 96%;
+    --border: 40 14% 82%;
+    --input: 40 14% 82%;
+    --ring: 38 92% 50%;
+    --radius: 0.125rem;
+    --status-open: 0 72% 48%;
+    --status-open-fg: 0 70% 96%;
+    --status-progress: 215 80% 48%;
+    --status-progress-fg: 215 90% 96%;
+    --status-pending: 38 92% 50%;
+    --status-pending-fg: 38 90% 12%;
+    --status-complete: 145 55% 36%;
+    --status-complete-fg: 145 50% 96%;
+    --status-reopened: 270 50% 50%;
+    --status-reopened-fg: 270 60% 97%;
+    --priority-low: 160 6% 45%;
+    --priority-med: 38 92% 50%;
+    --priority-high: 18 85% 50%;
+    --priority-crit: 0 72% 48%;
+    --sidebar-background: 40 30% 98%;
+    --sidebar-foreground: 160 8% 13%;
+    --sidebar-primary: 160 8% 13%;
+    --sidebar-primary-foreground: 40 33% 96%;
+    --sidebar-accent: 40 20% 92%;
+    --sidebar-accent-foreground: 160 8% 13%;
+    --sidebar-border: 40 14% 82%;
+    --sidebar-ring: 38 92% 50%;
+  }
+
+  .dark {
+    --background: 160 10% 8%;
+    --foreground: 40 20% 92%;
+    --card: 160 10% 10%;
+    --card-foreground: 40 20% 92%;
+    --popover: 160 10% 10%;
+    --popover-foreground: 40 20% 92%;
+    --primary: 40 20% 92%;
+    --primary-foreground: 160 10% 8%;
+    --secondary: 160 8% 15%;
+    --secondary-foreground: 40 20% 92%;
+    --muted: 160 8% 15%;
+    --muted-foreground: 40 10% 65%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 160 12% 10%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 40 20% 92%;
+    --border: 160 8% 18%;
+    --input: 160 8% 18%;
+    --ring: 38 92% 50%;
+    --status-pending-fg: 38 100% 90%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .font-mono,
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    font-feature-settings: "zero", "ss01";
+  }
+
+  hr {
+    @apply border-t border-border;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hairline {
+    box-shadow: inset 0 -1px 0 hsl(var(--border));
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}

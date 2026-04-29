@@ -16,6 +16,7 @@ import { PRIORITY_LABEL, STATUS_LABEL } from "@/lib/types";
 import { projectSlug } from "@/lib/project-slug";
 import { Button } from "@/components/ui/button";
 import { useBootstrapDb } from "@/hooks/use-bootstrap-db";
+import { NewPunchItemDialog } from "@/components/NewPunchItemDialog";
 
 const ProjectDetailView = () => {
   useBootstrapDb();
@@ -203,6 +204,7 @@ const ProjectDetailView = () => {
             <div className="font-mono text-2xl font-semibold tabular leading-none">{pct}<span className="text-sm text-muted-foreground">%</span></div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Complete</div>
           </div>
+          <NewPunchItemDialog projectId={project.id} />
         </div>
       </header>
 
